@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ücretsiz Eşya Satış Sitesi</title>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Open Sans', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #e3f2fd;
+    }
+    header {
+      background: #2196f3;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    main {
+      padding: 1rem;
+      max-width: 800px;
+      margin: auto;
+    }
+    form, .item-list {
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+    input, textarea, button, select {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.5rem;
+      margin-bottom: 1rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    .item {
+      border-bottom: 1px solid #ddd;
+      padding: 1rem 0;
+    }
+    .item img {
+      max-width: 100px;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    .search-box {
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Eşyalarını Ücretsiz Sat</h1>
+  </header>
+  <main>
+    <section class="search-box">
+      <input type="text" id="searchInput" placeholder="Eşya ara..." />
+    </section>
+
+    <section>
+      <form id="itemForm">
+        <h2>Yeni Eşya Ekle</h2>
+        <input type="text" id="title" placeholder="Başlık" required />
+        <textarea id="description" placeholder="Açıklama" required></textarea>
+        <input type="number" id="price" placeholder="Fiyat (TL)" required />
+        <input type="url" id="image" placeholder="Görsel URL (opsiyonel)" />
+        <select id="category" required>
+          <option value="">Kategori Seç</option>
+          <option value="Elektronik">Elektronik</option>
+          <option value="Mobilya">Mobilya</option>
+          <option value="Kitap">Kitap</option>
+          <option value="Giyim">Giyim</option>
+          <option value="Diğer">Diğer</option>
+        </select>
+        <input type="text" id="location" placeholder="Konum (Şehir)" required />
+        <button type="submit">Ekle</button>
+      </form>
+    </section>
+
+    <section class="item-list" id="itemList">
+      <h2>İlanlar</h2>
+      <!-- Eşyalar burada listelenecek -->
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById('itemForm');
+    const itemList = document.getElementById('itemList');
+    const searchInput = document.getElementById('searchInput');
+
+    let items = JSON.parse(localStorage.getItem('items') || '[]');
+
+    function renderItems(filter = '') {
+      const filtered = items.filter(item =>
+        item.title.toLowerCase().includes(filter.toLowerCase()) ||
+        item.description.toLowerCase().includes(filter.toLowerCase()) ||
+        item.category.toLowerCase().includes(filter.toLowerCase()) ||
+        item.location.toLowerCase().includes(filter.toLowerCase())
+      );
+
+      itemList.innerHTML = '<h2>İlanlar</h2>' + filtered.map(item => `
+        <div class="item">
+          ${item.image ? `<img src="${item.image}" alt="Görsel">` : ''}
+          <strong>${item.title}</strong>
+          <p>${item.description}</p>
+          <p><strong>${item.price} TL</strong> - ${item.category} - ${item.location}</p>
+        </div>
+      `).join('');
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = document.getElementById('title').value;
+      const description = document.getElementById('description').value;
+      const price = document.getElementById('price').value;
+      const image = document.getElementById('image').value;
+      const category = document.getElementById('category').value;
+      const location = document.getElementById('location').value;
+
+      const newItem = { title, description, price, image, category, location };
+      items.push(newItem);
+      localStorage.setItem('items', JSON.stringify(items));
+      renderItems();
+      form.reset();
+    });
+
+    searchInput.addEventListener('input', () => {
+      renderItems(searchInput.value);
+    });
+
+    renderItems();
+  </script>
+</body>
+</html>
